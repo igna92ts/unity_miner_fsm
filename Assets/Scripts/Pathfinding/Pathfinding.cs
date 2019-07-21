@@ -32,7 +32,7 @@ public class Pathfinding : MonoBehaviour
             }
 
             foreach (Node neighbour in grid.GetNeighbours(currentNode)) {
-                bool isException = walkableException.GetComponent<Collider2D>().bounds.Contains(neighbour.position);
+                var isException = IsWalkableException(walkableException, neighbour);
                 if ((!neighbour.walkable && !isException) || closedSet.Contains(neighbour)) continue;
 
                 int newMovementCost = currentNode.gCost + GetNodeDistance(currentNode, neighbour);
@@ -50,6 +50,19 @@ public class Pathfinding : MonoBehaviour
         return null;
     }
 
+    public bool IsWalkableException(GameObject exceptionObject, Node node) {
+        var nodeRadius = grid.nodeRadius;
+        var bottomLeft = new Vector2(node.position.x - nodeRadius, node.position.y - nodeRadius);
+        var bottomRight = new Vector2(node.position.x + nodeRadius, node.position.y - nodeRadius);
+        var topLeft = new Vector2(node.position.x - nodeRadius, node.position.y + nodeRadius);
+        var topRight = new Vector2(node.position.x + nodeRadius, node.position.y + nodeRadius);
+        var collider = exceptionObject.GetComponent<Collider2D>();
+        return collider.bounds.Contains(bottomLeft) ||
+            collider.bounds.Contains(bottomRight) ||
+            collider.bounds.Contains(topLeft) ||
+            collider.bounds.Contains(topRight) ||
+            collider.bounds.Contains(node.position);
+    }
     List<Node> RetracePath(Node startNode, Node endNode) {
         List<Node> path = new List<Node>();
         Node currentNode = endNode;
